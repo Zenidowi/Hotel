@@ -1,13 +1,14 @@
 import React from 'react';
 import Container from "../components/Container/Container";
 import ClientsPage from "../pages/ClientsPage/ClientsPage";
+import RoomsPage from "../pages/RoomsPage/RoomsPage";
 
 const App = () => {
 
 
     return (
         <Container>
-            <ClientsPage/>
+            <RoomsPage/>
         </Container>
     );
 };

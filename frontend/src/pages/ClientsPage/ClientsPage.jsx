@@ -45,7 +45,6 @@ const ClientsPage = () => {
 
         Clients.createClients(formData)
             .then(response => {
-                console.log(response.data);
                 form.resetFields();
                 fetchClients();
             })

@@ -1,0 +1,22 @@
+.rooms-page {
+    display: flex;
+    flex-direction: column;
+    row-gap: 150px;
+}
+.rooms-page_content{
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+.rooms-page-addOrSearch {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.rooms-page-add {
+    background-color: lawngreen;
+    width: 150px;
+}
+.rooms-page-search{
+    width: 264px;
+}
