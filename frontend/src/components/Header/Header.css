@@ -1,0 +1,14 @@
+.header{
+    display: flex;
+    height:80px;
+    width:100%;
+    align-items: center;
+    justify-content: space-between;
+}
+.header_title {
+    font-size: 32px;
+    font-weight: bold;
+}
+.header_img {
+
+}

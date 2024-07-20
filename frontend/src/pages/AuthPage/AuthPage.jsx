@@ -4,8 +4,6 @@ import {Button, Form, Input} from "antd";
 import {useForm} from "antd/es/form/Form";
 
 const AuthPage = () => {
-    const form = useForm()
-
     const onSubmit = (values) => {
         console.log(values);
     }
@@ -14,7 +12,7 @@ const AuthPage = () => {
         <div className="container">
             <div className="auth-page">
                 <h1 className="auth-page-title">Войти</h1>
-                <Form form={form} layout="vertical" className="auth-page-form">
+                <Form layout="vertical" className="auth-page-form">
                     <Form.Item label='Логин:' name="username" >
                         <Input/>
                     </Form.Item>

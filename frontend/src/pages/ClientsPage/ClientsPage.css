@@ -1,0 +1,22 @@
+.clients-page {
+    display: flex;
+    flex-direction: column;
+    row-gap: 150px;
+}
+.clients-page_content{
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+.clients-page-addOrSearch {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.clients-page-add {
+    background-color: lawngreen;
+    width: 150px;
+}
+.clients-page-search{
+    width: 264px;
+}

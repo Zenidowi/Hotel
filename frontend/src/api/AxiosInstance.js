@@ -1,5 +1,5 @@
 import axios from "axios";
-import {__API_URL__} from "../../env";
+import {__API_URL__} from "../env";
 
 export const instance = axios.create({
     baseURL: __API_URL__,

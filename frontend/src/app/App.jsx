@@ -1,13 +1,13 @@
 import React from 'react';
 import Container from "../components/Container/Container";
-import AuthPage from "../pages/AuthPage/AuthPage";
+import ClientsPage from "../pages/ClientsPage/ClientsPage";
 
 const App = () => {
 
 
     return (
         <Container>
-            <AuthPage/>
+            <ClientsPage/>
         </Container>
     );
 };
