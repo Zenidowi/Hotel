@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Button, Form, Input, message, Modal, Select, Space, Table} from "antd";
+import React, { useEffect, useState } from 'react';
+import { Button, Form, Input, message, Modal, Select, Space, Table } from "antd";
 import Header from "../../components/Header/Header";
 import Column from "antd/es/table/Column";
-import {Rooms} from "../../api/RoomsApi";
-import {Clients} from "../../api/ClientsApi";
-import {Booking} from "../../api/BookingsApi";
+import { Rooms } from "../../api/RoomsApi";
+import { Clients } from "../../api/ClientsApi";
+import { Booking } from "../../api/BookingsApi";
 import './RoomsPage.css';
-import {useForm} from "antd/es/form/Form";
+import { useForm } from "antd/es/form/Form";
 
 const roomTypeMap = {
     'single': 'Одноместный',
@@ -18,6 +18,11 @@ const categoryMap = {
     'standard': 'Стандарт',
     'deluxe': 'Делюкс',
     'luxury': 'Люкс'
+};
+
+const has_ = {
+    true: 'Есть',
+    false: 'Нет',
 };
 
 const RoomsPage = () => {
@@ -68,6 +73,7 @@ const RoomsPage = () => {
     const addBooking = () => {
         const formData = {
             ...bookingForm.getFieldsValue(),
+            room: selectedRoom?.id, // Отправляем id номера
             total_cost: calculateTotalCost(),
         };
 
@@ -103,19 +109,42 @@ const RoomsPage = () => {
             bookingForm.setFieldsValue({
                 price: room.price,
                 discount: room.discount || 0,
-                total_cost: calculateTotalCost(room.price, room.discount || 0)
+                total_cost: calculateTotalCost(room.price, room.discount || 0, bookingForm.getFieldValue('nights')),
+                room_description: `${getReadableRoomType(room.room_type)} - ${getReadableCategory(room.category)}`
             });
         }
     };
 
-    const calculateTotalCost = (price = selectedRoom?.price, discount = bookingForm.getFieldValue('discount')) => {
-        return (price - (price * (discount / 100))).toFixed(2);
+    const calculateTotalCost = (price = selectedRoom?.price, discount = bookingForm.getFieldValue('discount'), nights = bookingForm.getFieldValue('nights')) => {
+        const totalBeforeDiscount = price * nights;
+        const discountAmount = totalBeforeDiscount * (discount / 100);
+        return (totalBeforeDiscount - discountAmount).toFixed(2);
+    };
+
+    const getReadableRoomType = (roomType) => {
+        return roomTypeMap[roomType] || roomType;
+    };
+
+    const getReadableCategory = (category) => {
+        return categoryMap[category] || category;
     };
 
     useEffect(() => {
         fetchRooms();
         fetchClients();
     }, []);
+
+    const openBookingModal = (record) => {
+        setSelectedRoom(record);
+        bookingForm.setFieldsValue({
+            room_description: `${getReadableRoomType(record.room_type)} - ${getReadableCategory(record.category)}`,
+            price: record.price,
+            discount: record.discount || 0,
+            nights: 1, // Установим по умолчанию 1 ночь
+            total_cost: calculateTotalCost(record.price, record.discount || 0, 1) // Рассчитаем стоимость для 1 ночи
+        });
+        setBookingModal(true);
+    };
 
     return (
         <div className='rooms-page'>
@@ -177,10 +206,10 @@ const RoomsPage = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item label='Номер' name='room' rules={[{ required: true, message: 'Пожалуйста, выберите номер' }]}>
+                    <Form.Item label='Номер' name='room_description' rules={[{ required: true, message: 'Пожалуйста, выберите номер' }]}>
                         <Select onChange={handleRoomChange}>
                             {rooms.map(room => (
-                                <Select.Option key={room.id} value={room.id}>{room.room_type} - {room.category}</Select.Option>
+                                <Select.Option key={room.id} value={room.id}>{`${getReadableRoomType(room.room_type)} - ${getReadableCategory(room.category)}`}</Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -189,6 +218,13 @@ const RoomsPage = () => {
                     </Form.Item>
                     <Form.Item label='Дата выезда' name='check_out_date' rules={[{ required: true, message: 'Пожалуйста, выберите дату выезда' }]}>
                         <Input type='date' />
+                    </Form.Item>
+                    <Form.Item label='Количество суток' name='nights' rules={[{ required: true, message: 'Пожалуйста, введите количество суток' }]}>
+                        <Input type='number' min={1} onChange={(e) => {
+                            const nights = e.target.value;
+                            bookingForm.setFieldsValue({ nights });
+                            bookingForm.setFieldsValue({ total_cost: calculateTotalCost(selectedRoom?.price, bookingForm.getFieldValue('discount'), nights) });
+                        }} />
                     </Form.Item>
                     <Form.Item label='Цена за сутки' name='price'>
                         <Input disabled />
@@ -203,22 +239,21 @@ const RoomsPage = () => {
             </Modal>
 
             <Header />
-            <div className="rooms-page_content">
-                <div className="rooms-page-addOrSearch">
-                    <Button onClick={() => setRoomModal(true)} className='rooms-page-add'>Добавить номер</Button>
-                </div>
-                <Table dataSource={rooms} rowKey="id">
-                    <Column title="Тип номера" dataIndex="room_type" key="room_type" render={(text) => roomTypeMap[text]} />
-                    <Column title="Категория" dataIndex="category" key="category" render={(text) => categoryMap[text]}/>
+
+            <div className="rooms-page-content">
+                <Button onClick={() => setRoomModal(true)} className='rooms-page-add' type='primary'>Добавить номер</Button>
+                <Table dataSource={rooms} rowKey='id'>
+                    <Column title="Тип номера" dataIndex="room_type" key="room_type" render={(text) => getReadableRoomType(text)} />
+                    <Column title="Категория" dataIndex="category" key="category" render={(text) => getReadableCategory(text)} />
                     <Column title="Цена за сутки" dataIndex="price" key="price" />
-                    <Column title="Скидка" dataIndex="discount" key="discount" />
+                    <Column title="Детская кровать" dataIndex="has_child_bed" key="has_child_bed" render={(text) => has_[text]} />
                     <Column
                         title="Действия"
-                        key="action"
-                        render={(_, record) => (
+                        key="actions"
+                        render={(text, record) => (
                             <Space size="middle">
-                                <a onClick={() => deleteRoom(record.id)}>Удалить</a>
-                                <a onClick={() => setBookingModal(true)}>Забронировать</a>
+                                <Button onClick={() => openBookingModal(record)}>Забронировать</Button>
+                                <Button danger onClick={() => deleteRoom(record.id)}>Удалить</Button>
                             </Space>
                         )}
                     />
