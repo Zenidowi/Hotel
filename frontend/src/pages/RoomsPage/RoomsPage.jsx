@@ -264,19 +264,20 @@ const RoomsPage = () => {
             <Header />
 
             <div className="rooms-page-content">
-                <Button onClick={() => setRoomModal(true)} className='rooms-page-add' type='primary'>Добавить номер</Button>
+                <Button onClick={() => setRoomModal(true)} className='rooms-page-add'>Добавить номер</Button>
                 <Table dataSource={rooms} rowKey='id'>
                     <Column title="Тип номера" dataIndex="room_type" key="room_type" render={(text) => getReadableRoomType(text)} />
                     <Column title="Категория" dataIndex="category" key="category" render={(text) => getReadableCategory(text)} />
-                    <Column title="Цена за сутки" dataIndex="price" key="price" />
+                    <Column title="Цена за сутки | $" dataIndex="price" key="price" />
+                    <Column title="Скидка | %" dataIndex="discount" key="discount" />
                     <Column title="Детская кровать" dataIndex="has_child_bed" key="has_child_bed" render={(text) => has_[text]} />
                     <Column
                         title="Действия"
                         key="actions"
                         render={(text, record) => (
                             <Space size="middle">
-                                <Button onClick={() => openBookingModal(record)}>Забронировать</Button>
-                                <Button danger onClick={() => deleteRoom(record.id)}>Удалить</Button>
+                                <a onClick={() => openBookingModal(record)}>Забронировать</a>
+                                <a onClick={() => deleteRoom(record.id)}>Удалить</a>
                             </Space>
                         )}
                     />
