@@ -109,10 +109,16 @@ const RoomsPage = () => {
             bookingForm.setFieldsValue({
                 price: room.price,
                 discount: room.discount || 0,
-                total_cost: calculateTotalCost(room.price, room.discount || 0, bookingForm.getFieldValue('nights')),
                 room_description: `${getReadableRoomType(room.room_type)} - ${getReadableCategory(room.category)}`
             });
+            updateTotalCost(room.price, bookingForm.getFieldValue('discount'), bookingForm.getFieldValue('nights'));
         }
+    };
+
+    const updateTotalCost = (price, discount, nights) => {
+        bookingForm.setFieldsValue({
+            total_cost: calculateTotalCost(price, discount, nights)
+        });
     };
 
     const calculateTotalCost = (price = selectedRoom?.price, discount = bookingForm.getFieldValue('discount'), nights = bookingForm.getFieldValue('nights')) => {
@@ -129,6 +135,31 @@ const RoomsPage = () => {
         return categoryMap[category] || category;
     };
 
+    const handleCheckInChange = (date) => {
+        const checkInDate = new Date(date);
+        const checkOutDate = new Date(bookingForm.getFieldValue('check_out_date'));
+        const nights = calculateNights(checkInDate, checkOutDate);
+        bookingForm.setFieldsValue({ nights });
+        updateTotalCost(selectedRoom?.price, bookingForm.getFieldValue('discount'), nights);
+    };
+
+    const handleCheckOutChange = (date) => {
+        const checkInDate = new Date(bookingForm.getFieldValue('check_in_date'));
+        const checkOutDate = new Date(date);
+        const nights = calculateNights(checkInDate, checkOutDate);
+        bookingForm.setFieldsValue({ nights });
+        updateTotalCost(selectedRoom?.price, bookingForm.getFieldValue('discount'), nights);
+    };
+
+    const calculateNights = (checkInDate, checkOutDate) => {
+        if (checkInDate && checkOutDate) {
+            const diffTime = Math.abs(checkOutDate - checkInDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 ? diffDays : 1; // Минимум 1 ночь
+        }
+        return 1; // Минимум 1 ночь
+    };
+
     useEffect(() => {
         fetchRooms();
         fetchClients();
@@ -141,7 +172,7 @@ const RoomsPage = () => {
             price: record.price,
             discount: record.discount || 0,
             nights: 1, // Установим по умолчанию 1 ночь
-            total_cost: calculateTotalCost(record.price, record.discount || 0, 1) // Рассчитаем стоимость для 1 ночи
+            total_cost: calculateTotalCost(record.price, 0, 1) // Рассчитаем стоимость для 1 ночи
         });
         setBookingModal(true);
     };
@@ -207,30 +238,22 @@ const RoomsPage = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item label='Номер' name='room_description' rules={[{ required: true, message: 'Пожалуйста, выберите номер' }]}>
-                        <Select onChange={handleRoomChange}>
-                            {rooms.map(room => (
-                                <Select.Option key={room.id} value={room.id}>{`${getReadableRoomType(room.room_type)} - ${getReadableCategory(room.category)}`}</Select.Option>
-                            ))}
-                        </Select>
+                        <Input disabled />
                     </Form.Item>
                     <Form.Item label='Дата заезда' name='check_in_date' rules={[{ required: true, message: 'Пожалуйста, выберите дату заезда' }]}>
-                        <Input type='date' />
+                        <Input type="date" onChange={e => handleCheckInChange(e.target.value)} />
                     </Form.Item>
                     <Form.Item label='Дата выезда' name='check_out_date' rules={[{ required: true, message: 'Пожалуйста, выберите дату выезда' }]}>
-                        <Input type='date' />
+                        <Input type="date" onChange={e => handleCheckOutChange(e.target.value)} />
                     </Form.Item>
-                    <Form.Item label='Количество суток' name='nights' rules={[{ required: true, message: 'Пожалуйста, введите количество суток' }]}>
-                        <Input type='number' min={1} onChange={(e) => {
-                            const nights = e.target.value;
-                            bookingForm.setFieldsValue({ nights });
-                            bookingForm.setFieldsValue({ total_cost: calculateTotalCost(selectedRoom?.price, bookingForm.getFieldValue('discount'), nights) });
-                        }} />
+                    <Form.Item label='Количество суток' name='nights'>
+                        <Input disabled />
                     </Form.Item>
                     <Form.Item label='Цена за сутки' name='price'>
                         <Input disabled />
                     </Form.Item>
                     <Form.Item label='Скидка' name='discount'>
-                        <Input disabled />
+                        <Input disabled/>
                     </Form.Item>
                     <Form.Item label='Общая стоимость' name='total_cost'>
                         <Input disabled />
