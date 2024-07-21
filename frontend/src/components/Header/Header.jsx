@@ -24,8 +24,14 @@ const Header = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('1');
 
+
+    const logout = () => {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        navigate('/')
+    }
+
     useEffect(() => {
-        // Определите активную вкладку в зависимости от текущего пути
         switch (location.pathname) {
             case '/clients':
                 setActiveTab('1');
@@ -63,7 +69,7 @@ const Header = () => {
         <div className="header">
             <h1 className='header_title'>Hotel</h1>
             <Tabs activeKey={activeTab} onChange={onChange} items={items} />
-            <Button type={"primary"}>Выйти</Button>
+            <Button onClick={logout} type={"primary"}>Выйти</Button>
         </div>
     );
 };
