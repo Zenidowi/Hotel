@@ -1,24 +1,24 @@
-.rooms-page {
+.bookings-page {
     display: flex;
     flex-direction: column;
     row-gap: 150px;
     width: 100%;
     height: 100%;
 }
-.rooms-page_content{
+.bookings-page_content{
     display: flex;
     flex-direction: column;
     row-gap: 20px;
 }
-.rooms-page-addOrSearch {
+.bookings-page-addOrSearch {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.rooms-page-add {
+.bookings-page-add {
     background-color: lawngreen;
     width: 150px;
 }
-.rooms-page-search{
+.bookings-page-search{
     width: 264px;
 }
